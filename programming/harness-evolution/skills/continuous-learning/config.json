@@ -1,0 +1,18 @@
+{
+  "min_session_length": 10,
+  "extraction_threshold": "medium",
+  "auto_approve": false,
+  "learned_skills_path": ".cursor/skills/learned/",
+  "patterns_to_detect": [
+    "user_corrections",
+    "repeated_artifact_errors",
+    "default_approaches",
+    "framework_pitfalls",
+    "framework_scaffolds"
+  ],
+  "ignore_patterns": [
+    "simple_typos",
+    "one_time_fixes",
+    "external_api_issues"
+  ]
+}

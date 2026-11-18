@@ -1,0 +1,12 @@
+---
+description: 用户要求补写工作日志时，运行会话记录命令，把待处理对话写入 log 和 Decision
+alwaysApply: true
+---
+
+# 补写工作日志
+
+用户在任何一次对话里要求把工作日志或会话记录补上、写上或落盘时，在仓库根执行：
+
+`node .cursor/hooks/session-record.js --flush`
+
+不要自己编写 `log/` 或 `Decision/` 里的正文。这条命令会调用 DeepSeek，把待处理对话写入仓库。完成后说明写到了哪一天的日志。只阅读、不要求写入时，不要执行它。

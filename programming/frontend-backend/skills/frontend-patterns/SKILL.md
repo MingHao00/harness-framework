@@ -1,0 +1,340 @@
+---
+name: frontend-patterns
+description: Frontend patterns for composition, reducers, memoization, lazy loading, list virtualization, validate-then-submit, and dialog focus and keyboard handling. Do not add a library the project already has.
+---
+
+# Frontend Development Patterns
+
+## Constraints
+
+- Prefer composition, a reducer for complex state, memoization, lazy loading, virtualization for long lists, validate-then-submit, and dialog focus plus keyboard handling.
+- Do not add a new library when this project already has one for the same job.
+- Do not treat render props as the default pattern.
+- Do not invent useQuery when a data library already exists.
+
+### Composition Over Inheritance
+
+```typescript
+// ✅ GOOD: Component composition
+interface CardProps {
+  children: React.ReactNode
+  variant?: 'default' | 'outlined'
+}
+
+export function Card({ children, variant = 'default' }: CardProps) {
+  return <div className={`card card-${variant}`}>{children}</div>
+}
+
+export function CardHeader({ children }: { children: React.ReactNode }) {
+  return <div className="card-header">{children}</div>
+}
+
+export function CardBody({ children }: { children: React.ReactNode }) {
+  return <div className="card-body">{children}</div>
+}
+
+// Usage
+<Card>
+  <CardHeader>Title</CardHeader>
+  <CardBody>Content</CardBody>
+</Card>
+```
+
+### Context + Reducer Pattern
+
+```typescript
+interface State {
+  markets: Market[]
+  selectedMarket: Market | null
+  loading: boolean
+}
+
+type Action =
+  | { type: 'SET_MARKETS'; payload: Market[] }
+  | { type: 'SELECT_MARKET'; payload: Market }
+  | { type: 'SET_LOADING'; payload: boolean }
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'SET_MARKETS':
+      return { ...state, markets: action.payload }
+    case 'SELECT_MARKET':
+      return { ...state, selectedMarket: action.payload }
+    case 'SET_LOADING':
+      return { ...state, loading: action.payload }
+    default:
+      return state
+  }
+}
+
+const MarketContext = createContext<{
+  state: State
+  dispatch: Dispatch<Action>
+} | undefined>(undefined)
+
+export function MarketProvider({ children }: { children: React.ReactNode }) {
+  const [state, dispatch] = useReducer(reducer, {
+    markets: [],
+    selectedMarket: null,
+    loading: false
+  })
+
+  return (
+    <MarketContext.Provider value={{ state, dispatch }}>
+      {children}
+    </MarketContext.Provider>
+  )
+}
+
+export function useMarkets() {
+  const context = useContext(MarketContext)
+  if (!context) throw new Error('useMarkets must be used within MarketProvider')
+  return context
+}
+```
+
+### Memoization
+
+```typescript
+// ✅ useMemo for expensive computations
+const sortedMarkets = useMemo(() => {
+  return markets.sort((a, b) => b.volume - a.volume)
+}, [markets])
+
+// ✅ useCallback for functions passed to children
+const handleSearch = useCallback((query: string) => {
+  setSearchQuery(query)
+}, [])
+
+// ✅ React.memo for pure components
+export const MarketCard = React.memo<MarketCardProps>(({ market }) => {
+  return (
+    <div className="market-card">
+      <h3>{market.name}</h3>
+      <p>{market.description}</p>
+    </div>
+  )
+})
+```
+
+### Code Splitting & Lazy Loading
+
+```typescript
+import { lazy, Suspense } from 'react'
+
+// ✅ Lazy load heavy components
+const HeavyChart = lazy(() => import('./HeavyChart'))
+const ThreeJsBackground = lazy(() => import('./ThreeJsBackground'))
+
+export function Dashboard() {
+  return (
+    <div>
+      <Suspense fallback={<ChartSkeleton />}>
+        <HeavyChart data={data} />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <ThreeJsBackground />
+      </Suspense>
+    </div>
+  )
+}
+```
+
+### Virtualization for Long Lists
+
+```typescript
+import { useVirtualizer } from '@tanstack/react-virtual'
+
+export function VirtualMarketList({ markets }: { markets: Market[] }) {
+  const parentRef = useRef<HTMLDivElement>(null)
+
+  const virtualizer = useVirtualizer({
+    count: markets.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 100,  // Estimated row height
+    overscan: 5  // Extra items to render
+  })
+
+  return (
+    <div ref={parentRef} style={{ height: '600px', overflow: 'auto' }}>
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          position: 'relative'
+        }}
+      >
+        {virtualizer.getVirtualItems().map(virtualRow => (
+          <div
+            key={virtualRow.index}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: `${virtualRow.size}px`,
+              transform: `translateY(${virtualRow.start}px)`
+            }}
+          >
+            <MarketCard market={markets[virtualRow.index]} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+```
+
+### Controlled Form with Validation
+
+```typescript
+interface FormData {
+  name: string
+  description: string
+  endDate: string
+}
+
+interface FormErrors {
+  name?: string
+  description?: string
+  endDate?: string
+}
+
+export function CreateMarketForm() {
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    description: '',
+    endDate: ''
+  })
+
+  const [errors, setErrors] = useState<FormErrors>({})
+
+  const validate = (): boolean => {
+    const newErrors: FormErrors = {}
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required'
+    } else if (formData.name.length > 200) {
+      newErrors.name = 'Name must be under 200 characters'
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required'
+    }
+
+    if (!formData.endDate) {
+      newErrors.endDate = 'End date is required'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!validate()) return
+
+    try {
+      await createMarket(formData)
+      // Success handling
+    } catch (error) {
+      // Error handling
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        value={formData.name}
+        onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+        placeholder="Market name"
+      />
+      {errors.name && <span className="error">{errors.name}</span>}
+
+      {/* Other fields */}
+
+      <button type="submit">Create Market</button>
+    </form>
+  )
+}
+```
+
+## Accessibility Patterns
+
+### Keyboard Navigation
+
+```typescript
+export function Dropdown({ options, onSelect }: DropdownProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        setActiveIndex(i => Math.min(i + 1, options.length - 1))
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        setActiveIndex(i => Math.max(i - 1, 0))
+        break
+      case 'Enter':
+        e.preventDefault()
+        onSelect(options[activeIndex])
+        setIsOpen(false)
+        break
+      case 'Escape':
+        setIsOpen(false)
+        break
+    }
+  }
+
+  return (
+    <div
+      role="combobox"
+      aria-expanded={isOpen}
+      aria-haspopup="listbox"
+      onKeyDown={handleKeyDown}
+    >
+      {/* Dropdown implementation */}
+    </div>
+  )
+}
+```
+
+### Focus Management
+
+```typescript
+export function Modal({ isOpen, onClose, children }: ModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      // Save currently focused element
+      previousFocusRef.current = document.activeElement as HTMLElement
+
+      // Focus modal
+      modalRef.current?.focus()
+    } else {
+      // Restore focus when closing
+      previousFocusRef.current?.focus()
+    }
+  }, [isOpen])
+
+  return isOpen ? (
+    <div
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      tabIndex={-1}
+      onKeyDown={e => e.key === 'Escape' && onClose()}
+    >
+      {children}
+    </div>
+  ) : null
+}
+```
+
+**Remember**: Modern frontend patterns enable maintainable, performant user interfaces. Choose patterns that fit your project complexity.

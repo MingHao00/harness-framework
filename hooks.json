@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeSubmitPrompt": [
+      {
+        "command": "node programming/harness-evolution/hooks/session-record.js",
+        "timeout": 180
+      },
+      {
+        "command": "python programming/security/hooks/prompt_injection_guard.py",
+        "matcher": "UserPromptSubmit",
+        "failClosed": false,
+        "timeout": 10
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "node programming/workflow/hooks/git-push-reminder.js",
+        "matcher": "git\\s+push"
+      },
+      {
+        "command": "python programming/security/hooks/shell_guard.py",
+        "failClosed": false,
+        "timeout": 10
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "python programming/security/hooks/sensitive_file_guard.py",
+        "matcher": "Read|Write|StrReplace|EditNotebook|Delete",
+        "failClosed": false,
+        "timeout": 10
+      }
+    ],
+    "preCompact": [
+      {
+        "command": "node programming/harness-evolution/hooks/run-legacy.js pre-compact.js"
+      }
+    ],
+    "sessionStart": [
+      {
+        "command": "node programming/harness-evolution/hooks/session-record.js",
+        "timeout": 180
+      },
+      {
+        "command": "node programming/harness-evolution/hooks/run-legacy.js session-start.js"
+      }
+    ],
+    "workspaceOpen": [
+      {
+        "command": "node programming/harness-evolution/hooks/session-record.js",
+        "timeout": 180
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "node programming/harness-evolution/hooks/session-record.js",
+        "timeout": 120
+      },
+      {
+        "command": "node programming/harness-evolution/hooks/run-legacy.js session-end.js"
+      },
+      {
+        "command": "node programming/harness-evolution/hooks/run-legacy.js evaluate-session.js",
+        "timeout": 120
+      },
+      {
+        "command": "python programming/harness-evolution/hooks/token_usage_tracker.py",
+        "failClosed": false,
+        "timeout": 15
+      }
+    ],
+    "afterShellExecution": [
+      {
+        "command": "node programming/workflow/hooks/pr-url.js",
+        "matcher": "gh\\s+pr\\s+create"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "node programming/code-style/hooks/prettier-format.js"
+      },
+      {
+        "command": "node programming/code-style/hooks/tsc-check.js"
+      },
+      {
+        "command": "node programming/code-style/hooks/console-log-after-edit.js"
+      }
+    ],
+    "stop": [
+      {
+        "command": "node programming/harness-evolution/hooks/session-record.js",
+        "timeout": 15
+      },
+      {
+        "command": "node programming/code-style/hooks/console-log-stop.js"
+      },
+      {
+        "command": "node programming/harness-evolution/hooks/run-legacy.js suggest-compact.js"
+      }
+    ]
+  }
+}

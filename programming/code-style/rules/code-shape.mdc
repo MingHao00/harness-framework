@@ -1,0 +1,10 @@
+---
+description: 嵌套深度、console.log，以及 JavaScript/TypeScript 的不可变写法
+alwaysApply: true
+---
+
+# 代码形态
+
+- 嵌套不超过 4 层。
+- 正在修改的代码里不要留下 `console.log`。
+- JavaScript 和 TypeScript 优先用不可变写法。

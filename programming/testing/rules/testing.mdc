@@ -1,0 +1,10 @@
+---
+description: 测试覆盖、测试类型，以及先写测试再写实现
+alwaysApply: true
+---
+
+# 测试
+
+- 覆盖率至少 80%，包含单元测试、集成测试和 Playwright 端到端测试。
+- 新功能、修 bug、重构都先写测试，再写实现。
+- 测试与源码放在一起：TypeScript 用 `*.test.ts`，Python 用 `test_*.py`。
