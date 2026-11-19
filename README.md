@@ -58,7 +58,7 @@ cd harness-framework
 ## Harness 自进化 `programming/harness-evolution`
 
 技能：`continuous-learning`、`eval-harness`、`session-record`、`strategic-compact`。
-钩子：会话记录、会话起止、`evaluate-session`、`pre-compact`、`suggest-compact`、`token_usage_tracker`，以及其余未单独点名的钩子脚本。
+钩子：会话记录、会话起止、`breakpoint`、`evaluate-session`、`pre-compact`、`suggest-compact`、`token_usage_tracker`，以及其余未单独点名的钩子脚本。`breakpoint` 在压缩前为每个对话写下 `log/now/<短号>.md`。
 规则：`model-and-context`、`session-record`。
 
 ## 安全 `programming/security`
