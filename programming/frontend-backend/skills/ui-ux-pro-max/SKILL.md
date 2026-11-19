@@ -286,3 +286,7 @@ Before delivering UI code, verify these items:
 - [ ] Form inputs have labels
 - [ ] Color is not the only indicator
 - [ ] `prefers-reduced-motion` respected
+
+## 许可证
+
+本目录来自 [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)，Copyright (c) 2024 Next Level Builder，MIT。版权声明和许可全文在同目录的 `LICENSE`。

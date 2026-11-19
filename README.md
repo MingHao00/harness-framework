@@ -69,4 +69,8 @@ python -m pytest programming/security/hooks/test_sensitive_file_guard.py
 
 ## 贡献
 
-发现问题可以在本仓库开 [Issue](https://github.com/MingHao00/harness-framework/issues)。本仓库还没有 `LICENSE` 文件。
+发现问题可以在本仓库开 [Issue](https://github.com/MingHao00/harness-framework/issues)。
+
+## 许可证
+
+本仓库使用 [MIT](./LICENSE)，Copyright (c) 2026 MingHao00。`programming/frontend-backend/skills/ui-ux-pro-max` 来自 Next Level Builder，Copyright (c) 2024，MIT，声明在该目录的 `LICENSE`。
