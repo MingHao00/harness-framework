@@ -34,10 +34,27 @@
     ],
     "preCompact": [
       {
+        "command": "node programming/harness-evolution/hooks/breakpoint.js",
+        "failClosed": false,
+        "timeout": 120
+      },
+      {
         "command": "node programming/harness-evolution/hooks/run-legacy.js pre-compact.js"
       }
     ],
+    "postToolUse": [
+      {
+        "command": "node programming/harness-evolution/hooks/breakpoint.js",
+        "failClosed": false,
+        "timeout": 10
+      }
+    ],
     "sessionStart": [
+      {
+        "command": "node programming/harness-evolution/hooks/breakpoint.js",
+        "failClosed": false,
+        "timeout": 60
+      },
       {
         "command": "node programming/harness-evolution/hooks/session-record.js",
         "timeout": 180
@@ -53,6 +70,11 @@
       }
     ],
     "sessionEnd": [
+      {
+        "command": "node programming/harness-evolution/hooks/breakpoint.js",
+        "failClosed": false,
+        "timeout": 120
+      },
       {
         "command": "node programming/harness-evolution/hooks/session-record.js",
         "timeout": 120
