@@ -1,3 +1,9 @@
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:4158D0,100:C850C0&height=200&section=header&text=Harness&fontSize=70&fontColor=ffffff&animation=fadeIn" alt="Harness" />
+
+</div>
+
 # Harness
 
 给 Cursor 用的技能、钩子、规则和子代理目录，按前后端、代码风格、测试、自进化、安全、流程六档摆放。
