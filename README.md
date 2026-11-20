@@ -48,7 +48,7 @@ cd harness-framework
 
 ### 流程 `programming/workflow`
 
-- 技能：`grilling`、`research`、`review`、`orchestrate`
+- 技能：`grilling`、`research`、`review`、`orchestrate`、`knowledge-docs`
 - 钩子：`git-push-reminder`、`pr-url`
 - 规则：`skeleton-projects`
 - 子代理：`code-reviewer`、`doc-updater`、`architect`、`planner`
